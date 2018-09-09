@@ -63,7 +63,9 @@ function validateStorage(){
 
 
 function removeDuplicates(arr){
-  return Array.from(new Set(arr));
+  return arr.filter(function (x, i) {
+    return arr.indexOf(x) === i;
+  });
 }
 
 function getNcodeArrFromStorage(){
