@@ -1,0 +1,96 @@
+.novel_card{
+  padding-top: 15px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  /*
+  -webkit-box-shadow: 3px 3px 10px 0px #d1d1d182;
+  -ms-box-shadow: 3px 3px 10px 0px #d1d1d182;
+  box-shadow: 3px 3px 10px 0px #d1d1d182;
+  */
+  background: #fff;
+  filter: drop-shadow(1px 3px 2px rgba(0,0,0,0.2));
+}
+
+.novel_title {
+  color: #FD6532;
+  font-size: 120%;
+  font-weight: bold;
+  text-decoration: underline;
+}
+.novel_synopsis{
+  color: #660033;
+}
+.center{
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.blue{
+  color: #0033cc;
+}
+.red{
+  color: #dd0000;
+}
+
+#header_box{
+  text-align: center;
+  padding-top: 70px;
+  padding-bottom: 70px;
+
+  background: -moz-linear-gradient(top, #aacccc, #fff);
+  background: -webkit-linear-gradient(top, #aacccc, #fff);
+  background: linear-gradient(to bottom, #aaccff, #fff);
+}
+#header_line1{
+  color: #000000;
+  font-size: 30px;
+}
+#header_line2{
+  color: #0033cc;
+  font-size: 45px;
+  text-decoration: underline;
+}
+#header_line3{
+  color: #000000;
+  font-size: 20px;
+}
+.delete_button{
+  float: right;
+  padding: 0px 50px;
+}
+.rank_num{
+  color: #33aaaa;
+  font-weight: bold;
+  display: inline-block;
+  width: 45px;
+  font-size: 115%;
+}
+
+#float_button_box{
+  display: block;
+  position: fixed;
+  bottom: 60px;
+  right: 20px;
+  z-index: 9999;
+  opacity: 0.8;
+}
+#go_forward_10{
+  padding: 20px;
+}
+#go_forward_100{
+  padding: 20px;
+}
+.margin-right{
+  margin-right: 50px;
+}
+#loading_animation{
+  position: fixed;
+  color: #0033cc;
+  top: 50%;
+  text-align: center;
+  width: 100%;
+  font-size: 40px;
+  z-index: 10000;
+}
