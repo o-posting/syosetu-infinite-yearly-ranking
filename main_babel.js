@@ -97,8 +97,9 @@ $(function () {
     var closedCardNcodes = getNcodeArrFromStorage();
     for (var i = 0; i < num; i++) {
       var rank = numAppendedNovel + i + 1;
-      var data = syosetuData[ncodes[numAppendedNovel + i]];
-      createdHTML += createNovelCardHTML(rank, data.ncode, data.title, data.state, data.synopsis, data.genre, data.genre, data.keywords, data.wordCount, data.wholePeriodPoint, data.yearlyPoint);
+      var ncode = ncodes[numAppendedNovel + i];
+      var data = syosetuData[ncode];
+      createdHTML += createNovelCardHTML(rank, ncode, data.title, data.state, data.synopsis, data.genre, data.genre, data.keywords, data.wordCount, data.wholePeriodPoint, data.yearlyPoint);
     }
     document.getElementById('card_container').insertAdjacentHTML('beforeend', createdHTML);
     for (var _i = 0; _i < num; _i++) {

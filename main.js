@@ -111,8 +111,9 @@ $(() => {
     const closedCardNcodes = getNcodeArrFromStorage();
     for(let i = 0; i < num; i++){
       const rank = (numAppendedNovel + i) + 1;
-      const data = syosetuData[ncodes[(numAppendedNovel + i)]];
-      createdHTML += createNovelCardHTML(rank, data.ncode, data.title, data.state, data.synopsis, data.genre, data.genre, data.keywords, data.wordCount, data.wholePeriodPoint, data.yearlyPoint);
+      const ncode = ncodes[(numAppendedNovel + i)];
+      const data = syosetuData[ncode];
+      createdHTML += createNovelCardHTML(rank, ncode, data.title, data.state, data.synopsis, data.genre, data.genre, data.keywords, data.wordCount, data.wholePeriodPoint, data.yearlyPoint);
     }
     document.getElementById('card_container').insertAdjacentHTML('beforeend', createdHTML);
     for(let i = 0; i < num; i++){
