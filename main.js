@@ -1,41 +1,3 @@
-
-
-/* 全てのカードをレスポンシブルにしたら重すぎて使いにくくなったコード
-function createNovelCardHTML(rank, ncode, title, state, synopsis, genreA, genreB, keywords, wordCount, wholePeriodPoint, yearlyPoint){
-  return  `<div class="row"><div class="col"><div class="novel_card" id="card_${rank}"><div class="container">` +
-          `<div class="row novel_title_row">` +
-          `  <div class="col">` +
-          `    <span class="rank_num">${rank}位</span> <a class="novel_title" href="https://ncode.syosetu.com/${ncode}/">${title}</a>` +
-          `    <input type="button" id="delete_button_${rank}" class="btn btn-danger delete_button" value="x">` +
-          `  </div>` +
-          `</div>` +
-          `<div class="row no-gutters novel_info_row">` +
-          `  <div class="col-sm-1">` +
-          `    <span class="center">${state}</span>` +
-          `  </div>` +
-          `  <div class="col-sm-11">` +
-          `    <div class="novel_synopsis">` +
-          `      ${synopsis}` +
-          `    </div>` +
-          `    ジャンル：<span class="blue">${genreA}</span>〔${genreB}〕<br>` +
-          `    キーワード： <span class="blue">${keywords.join(' ')}</span><br>` +
-          `    <div class="row" style="max-width: 700px;">` +
-          `      <div class="col-sm-5">` +
-          `        約${Math.round(wordCount / 500)}分（${(''+wordCount).replace( /(\d)(?=(\d\d\d)+(?!\d))/g, '$1,')}文字）` +
-          `      </div>` +
-          `      <div class="col-sm-4">` +
-          `        総合評価pt：<span class="red">${wholePeriodPoint}pt</span>` +
-          `      </div>` +
-          `      <div class="col-sm-3">` +
-          `        年間pt：<span class="red">${yearlyPoint}pt</span>` +
-          `      </div>` +
-          `    </div>` +
-          `  </div>` +
-          `</div>` +
-          `</div></div></div></div>`;
-}
-*/
-
 function createNovelCardHTML(rank, ncode, title, state, synopsis, genreA, genreB, keywords, wordCount, wholePeriodPoint, yearlyPoint){
   return  `  <div class="novel_card" id="card_${rank}">` +
           `    <div>` +
@@ -67,6 +29,7 @@ function getNcodesOrderedByYearlyPoint(){
     }
   });
 }
+
 function getRankDisplayedOnScreen(){
   for(let i = 1; i < 500000; i++){
     const el = document.getElementById('card_' + i);
@@ -75,21 +38,88 @@ function getRankDisplayedOnScreen(){
   }
 }
 
+function closeCard(rank){
+  $(`#card_${rank}`).css('height', '2px');
+  $(`#card_${rank}`).css('margin-bottom', '2px');
+  $(`#card_${rank} *`).css('display', 'none');
+}
+
+
+//n文字ごとに分割
+function splitByLen(str, n) {
+  for (var dst = [], i = 0; i < str.length; i += n)
+    dst.push(str.substr(i, n));
+  return dst;
+}
+
+function validateStorage(){
+  if(!localStorage.closedCards) localStorage.closedCards = "";
+  if(localStorage.closedCards.length % 6){
+    console.error("localStorage.closedCardsの文字数は6の倍数でなければなりません");
+    return false;
+  }
+  return true;
+}
+
+
+function removeDuplicates(arr){
+  return Array.from(new Set(arr));
+}
+
+function getNcodeArrFromStorage(){
+  if(!validateStorage()) return [];
+  const list = splitByLen(localStorage.closedCards, 6);
+  return list.map(el => 'n' + el.replace(/=/g, ""));
+}
+
+function displayClosedCardNcodes(opt_arr){
+  if(opt_arr === undefined) opt_arr = getNcodeArrFromStorage();
+  $('#closed_card_ncodes_json').val(JSON.stringify(opt_arr));
+}
+
+function setNcodeArrToStorage(ncodeArr){
+  if(!validateStorage()) return;
+  //先頭の'n'を取り除いてから'='で6文字に埋める
+  const arr = removeDuplicates(ncodeArr.map(el => ('======' + el.slice(1)).slice(-6)));
+  localStorage.closedCards = arr.join("");
+
+  displayClosedCardNcodes(arr);
+}
+
+function setNcodeToStorage(ncode){
+  if(!validateStorage()) return;
+  //先頭の'n'を取り除いてから'='で6文字に埋める
+  const paddedNcode = ('======' + ncode.slice(1)).slice(-6);
+  const arr = removeDuplicates(splitByLen(localStorage.closedCards + paddedNcode, 6));
+  localStorage.closedCards = arr.join("");
+
+  displayClosedCardNcodes(arr);
+}
+
+
+
 $(() => {
   $('#header_line3').html("データ更新日: " + dataVersion);
+
   const ncodes = getNcodesOrderedByYearlyPoint();
+  
   let numAppendedNovel = 0;
+
   const appendNovelCards = (num) => {
     let createdHTML = "";
+    const closedCardNcodes = getNcodeArrFromStorage();
     for(let i = 0; i < num; i++){
-      const rank = numAppendedNovel + 1;
-      const data = syosetuData[ncodes[numAppendedNovel]];
+      const rank = (numAppendedNovel + i) + 1;
+      const data = syosetuData[ncodes[(numAppendedNovel + i)]];
       createdHTML += createNovelCardHTML(rank, data.ncode, data.title, data.state, data.synopsis, data.genre, data.genre, data.keywords, data.wordCount, data.wholePeriodPoint, data.yearlyPoint);
-      numAppendedNovel++;
     }
     document.getElementById('card_container').insertAdjacentHTML('beforeend', createdHTML);
+    for(let i = 0; i < num; i++){
+      if(closedCardNcodes.indexOf(ncodes[numAppendedNovel + i]) === -1) continue;
+      closeCard(numAppendedNovel + i + 1);
+    }
+    numAppendedNovel += num;
   };
-  
   const goForward = (num, forced) => {
     const currentRank = getRankDisplayedOnScreen();
     if(currentRank === 0 && !forced){
@@ -101,7 +131,7 @@ $(() => {
     }
     $("html,body").animate({scrollTop:$('#card_' + (currentRank + num)).offset().top}, 200);
     return;
-  }
+  };
 
   $('#go_forward_10').on('click', () => {
     goForward(10);
@@ -123,12 +153,12 @@ $(() => {
     appendNovelCards(3);
   }, 20);
 
-  //要素を生成してからすぐまたはsetTimeoutで一度だけon('click')やonclickを設定してもなぜかうまくいかなかったので、あきらめてsetIntervalで何度も書き込む。
+  //要素を生成してからすぐまたはsetTimeoutで一度だけon('click')やonclickを設定してもなぜかうまくいかなかったので、setIntervalで何度も書き込む。
   setInterval(() => {
     $('.delete_button').each((i, el) => {
-      const rank = i + 1;
       el.onclick = () => {
-        $('#card_' + rank).css('display', 'none');
+        closeCard(i + 1);
+        setNcodeToStorage(ncodes[i]);
       }
     });
   }, 500);
@@ -139,5 +169,28 @@ $(() => {
     goForward(+window.location.hash.substr(1), true);
   }
 
+  displayClosedCardNcodes();
+  $('#closed_card_ncodes_json').on('change', function() {
+    if(confirm('リストの変更を決定しますか？')){
+      try{
+        let list = JSON.parse($(this).val());
+        if(!Array.isArray(list)){
+          alert('入力されたリストの形式が正しくありません。(配列を渡してください)');
+          return;
+        }
+        if(!list.every(el => typeof el === 'string')){
+          alert('入力されたリストの形式が正しくありません。(配列の要素はすべて文字列にしてください)');
+          return;
+        }
+        setNcodeArrToStorage(list);
+        alert('リストが変更されました。反映するにはページを再読み込みしてください。');
+      }catch(e){
+        alert('入力されたリストの形式が正しくありません。(パースに失敗しました)');
+      }
+    }else{
+      displayClosedCardNcodes();
+      alert('変更を元に戻しました。');
+    }
+  });
   document.getElementById('loading_animation').innerHTML = "";
 });
