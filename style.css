@@ -91,3 +91,7 @@
   font-size: 40px;
   z-index: 10000;
 }
+
+#closed_card_ncodes_json{
+  height: 130px;
+}

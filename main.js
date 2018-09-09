@@ -73,8 +73,7 @@ function getNcodeArrFromStorage(){
 }
 
 function displayClosedCardNcodes(opt_arr){
-  if(opt_arr === undefined) opt_arr = getNcodeArrFromStorage();
-  $('#closed_card_ncodes_json').val(JSON.stringify(opt_arr));
+  $('#closed_card_ncodes_json').val(JSON.stringify(getNcodeArrFromStorage(), null, '  '));
 }
 
 function setNcodeArrToStorage(ncodeArr){
@@ -83,7 +82,7 @@ function setNcodeArrToStorage(ncodeArr){
   const arr = removeDuplicates(ncodeArr.map(el => ('======' + el.slice(1)).slice(-6)));
   localStorage.closedCards = arr.join("");
 
-  displayClosedCardNcodes(arr);
+  displayClosedCardNcodes();
 }
 
 function setNcodeToStorage(ncode){
@@ -93,7 +92,7 @@ function setNcodeToStorage(ncode){
   const arr = removeDuplicates(splitByLen(localStorage.closedCards + paddedNcode, 6));
   localStorage.closedCards = arr.join("");
 
-  displayClosedCardNcodes(arr);
+  displayClosedCardNcodes();
 }
 
 
