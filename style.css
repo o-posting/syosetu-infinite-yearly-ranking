@@ -6,8 +6,10 @@
   margin-bottom: 20px;
   border-radius: 8px;
   background: #fff;
+  -webkit-box-shadow: 1px 3px 2px rgba(0,0,0,0.2);
+          box-shadow: 1px 3px 2px rgba(0,0,0,0.2);
   -webkit-filter: drop-shadow(1px 3px 2px rgba(0,0,0,0.2));
-          filter: drop-shadow(1px 3px 2px rgba(0,0,0,0.2));
+  filter: drop-shadow(1px 3px 2px rgba(0,0,0,0.2));
 }
 
 .novel_title {
