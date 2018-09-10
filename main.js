@@ -35,11 +35,8 @@ function createNovelCardHTML(rank, ncode, title, state, synopsis, genre, keyword
           `      <span class="rank_num">${rank}位</span> <a class="novel_title" href="https://ncode.syosetu.com/${ncode}/">${title}</a>` +
           `      <input type="button" class="btn btn-danger delete_button" value="x">` +
           `    </div>` +
-          `    <div style="position: relative;">` +
-          `      <input type="button" id="open_synopsis_button_${rank}" class="btn open_synopsis_button" value="...">` +
-          `      <div class="novel_synopsis">` +
-          `        ${synopsis}` +
-          `      </div>` +
+          `    <div id="novel_synopsis_${rank}" class="novel_synopsis">` +
+          `        ${synopsis}<br>` +
           `      ジャンル：<span class="blue">${genreA}</span>〔${genreB}〕<br>` +
           `      キーワード： <span class="blue">${keywords.join(' ')}</span><br>` +
           `      <span class="margin-right">${state}</span>` +
@@ -47,6 +44,7 @@ function createNovelCardHTML(rank, ncode, title, state, synopsis, genre, keyword
           `      総合評価pt：<span class="red margin-right">${wholePeriodPoint}pt</span>` +
           `      年間pt：<span class="red margin-right">${yearlyPoint}pt</span>` +
           `    </div>` +
+          `    <input type="button" id="open_synopsis_button_${rank}" class="btn open_synopsis_button" value="...">` +
           `  </div>`;
 }
 
@@ -198,7 +196,7 @@ $(() => {
     $('.open_synopsis_button').each((i, el) => {
       el.onclick = () => {
         $(el).css('display', 'none');
-        $(`#card_${i + 1}`).toggleClass('open');
+        $(`#novel_synopsis_${i + 1}`).toggleClass('open');
       }
     });
   }, 500);
