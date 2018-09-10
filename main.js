@@ -35,7 +35,7 @@ function createNovelCardHTML(rank, ncode, title, state, synopsis, genre, keyword
           `      <span class="rank_num">${rank}位</span> <a class="novel_title" href="https://ncode.syosetu.com/${ncode}/">${title}</a>` +
           `      <input type="button" class="btn btn-danger delete_button" value="x">` +
           `    </div>` +
-          `    <div>` +
+          `    <div style="position: relative;">` +
           `      <input type="button" id="open_synopsis_button_${rank}" class="btn open_synopsis_button" value="...">` +
           `      <div class="novel_synopsis">` +
           `        ${synopsis}` +
