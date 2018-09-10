@@ -2,9 +2,10 @@ function createNovelCardHTML(rank, ncode, title, state, synopsis, genreA, genreB
   return  `  <div class="novel_card" id="card_${rank}">` +
           `    <div>` +
           `      <span class="rank_num">${rank}位</span> <a class="novel_title" href="https://ncode.syosetu.com/${ncode}/">${title}</a>` +
-          `      <input type="button" id="delete_button_${rank}" class="btn btn-danger delete_button" value="x">` +
+          `      <input type="button" class="btn btn-danger delete_button" value="x">` +
           `    </div>` +
           `    <div>` +
+          `      <input type="button" id="open_synopsis_button_${rank}" class="btn open_synopsis_button" value="...">` +
           `      <div class="novel_synopsis">` +
           `        ${synopsis}` +
           `      </div>` +
@@ -161,6 +162,12 @@ $(() => {
       el.onclick = () => {
         closeCard(i + 1);
         setNcodeToStorage(ncodes[i]);
+      }
+    });
+    $('.open_synopsis_button').each((i, el) => {
+      el.onclick = () => {
+        $(el).css('display', 'none');
+        $(`#card_${i + 1}`).toggleClass('open');
       }
     });
   }, 500);

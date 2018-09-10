@@ -5,19 +5,30 @@
   padding-right: 20px;
   margin-bottom: 20px;
   border-radius: 8px;
+  font-size: 16px;
   background: #fff;
   -webkit-box-shadow: 1px 3px 2px rgba(0,0,0,0.2);
           box-shadow: 1px 3px 2px rgba(0,0,0,0.2);
   -webkit-filter: drop-shadow(1px 3px 2px rgba(0,0,0,0.2));
   filter: drop-shadow(1px 3px 2px rgba(0,0,0,0.2));
-  overflow: auto;
-
-  font-size: 16px;
+  overflow-x: auto;
 }
 
 @media (max-width: 320px), (max-height: 740px) {
-  novel_card{
-    font-size: 8px;
+  .novel_card{
+    padding-top: 6px;
+    padding-bottom: 10px;
+    padding-left: 6px;
+    padding-right: 6px;
+    margin-bottom: 4px;
+    border-radius: 4px;
+    font-size: 12px;
+    overflow-y: hidden;
+    max-height: 200px;
+    transition: all 300ms 0s ease;
+  }
+  .novel_card.open{
+    max-height: 1000px;
   }
 }
 
@@ -72,6 +83,16 @@
 .delete_button{
   float: right;
   padding: 0px 50px;
+  font-size: inherit;
+  -webkit-box-shadow: 2px 2px 3px rgba(0,0,0,0.2);
+          box-shadow: 2px 2px 3px rgba(0,0,0,0.2);
+  -webkit-filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+          filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+}
+@media (max-width: 320px), (max-height: 740px) {
+  .delete_button{
+    padding: 0px 25px;
+  }
 }
 .rank_num{
   color: #33aaaa;
@@ -92,9 +113,17 @@
 
 #go_forward_10{
   padding: 20px;
+  -webkit-box-shadow: 2px 2px 3px rgba(0,0,0,0.2);
+          box-shadow: 2px 2px 3px rgba(0,0,0,0.2);
+  -webkit-filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+          filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
 }
 #go_forward_100{
   padding: 20px;
+  -webkit-box-shadow: 2px 2px 3px rgba(0,0,0,0.2);
+          box-shadow: 2px 2px 3px rgba(0,0,0,0.2);
+  -webkit-filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+          filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
 }
 
 @media (max-width: 320px), (max-height: 740px) {
@@ -121,5 +150,28 @@
 
 #closed_card_ncodes_json{
   height: 130px;
+}
+
+.open_synopsis_button{
+  display: none;
+}
+
+@media (max-width: 320px), (max-height: 740px) {
+  .open_synopsis_button{
+    display: block;
+    position: fixed;
+    bottom: 3%;
+    right: 0%;
+    z-index: 9000;
+    opacity: 0.9;
+    font-size: inherit;
+    padding: 0;
+    width: 100%;
+
+    -webkit-box-shadow: 2px 2px 3px rgba(0,0,0,0.2);
+            box-shadow: 2px 2px 3px rgba(0,0,0,0.2);
+    -webkit-filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+    filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+  }
 }
 
