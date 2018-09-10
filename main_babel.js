@@ -1,7 +1,44 @@
 'use strict';
 
-function createNovelCardHTML(rank, ncode, title, state, synopsis, genreA, genreB, keywords, wordCount, wholePeriodPoint, yearlyPoint) {
-  return '  <div class="novel_card" id="card_' + rank + '">' + '    <div>' + ('      <span class="rank_num">' + rank + '\u4F4D</span> <a class="novel_title" href="https://ncode.syosetu.com/' + ncode + '/">' + title + '</a>') + ('      <input type="button" id="delete_button_' + rank + '" class="btn btn-danger delete_button" value="x">') + '    </div>' + '    <div>' + '      <div class="novel_synopsis">' + ('        ' + synopsis) + '      </div>' + ('      \u30B8\u30E3\u30F3\u30EB\uFF1A<span class="blue">' + genreA + '</span>\u3014' + genreB + '\u3015<br>') + ('      \u30AD\u30FC\u30EF\u30FC\u30C9\uFF1A <span class="blue">' + keywords.join(' ') + '</span><br>') + ('      <span class="margin-right">' + state + '</span>') + ('      <span class="margin-right">\u7D04' + Math.round(wordCount / 500) + '\u5206\uFF08' + ('' + wordCount).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,') + '\u6587\u5B57\uFF09</span>') + ('      \u7DCF\u5408\u8A55\u4FA1pt\uFF1A<span class="red margin-right">' + wholePeriodPoint + 'pt</span>') + ('      \u5E74\u9593pt\uFF1A<span class="red margin-right">' + yearlyPoint + 'pt</span>') + '    </div>' + '  </div>';
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+function translateGenreId(id) {
+  if (+id === 101) return ['異世界', '恋愛'];
+  if (+id === 102) return ['現実世界', '恋愛'];
+
+  if (+id === 201) return ['ハイファンタジー', 'ファンタジー'];
+  if (+id === 202) return ['ローファンタジー', 'ファンタジー'];
+
+  if (+id === 301) return ['純文学', '文芸'];
+  if (+id === 302) return ['ヒューマンドラマ', '文芸'];
+  if (+id === 303) return ['歴史', '文芸'];
+  if (+id === 304) return ['推理', '文芸'];
+  if (+id === 305) return ['ホラー', '文芸'];
+  if (+id === 306) return ['アクション', '文芸'];
+  if (+id === 307) return ['コメディー', '文芸'];
+
+  if (+id === 401) return ['VRゲーム', 'SF'];
+  if (+id === 402) return ['宇宙', 'SF'];
+  if (+id === 403) return ['空想科学', 'SF'];
+  if (+id === 404) return ['パニック', 'SF'];
+
+  if (+id === 9901) return ['童話', 'その他'];
+  if (+id === 9902) return ['詩', 'その他'];
+  if (+id === 9903) return ['エッセイ', 'その他'];
+  if (+id === 9904) return ['リプレイ', 'その他'];
+  if (+id === 9905) return ['その他', 'その他'];
+
+  if (+id === 9801) return ['ノンジャンル', 'ノンジャンル'];
+
+  return ['error', 'error'];
+}
+function createNovelCardHTML(rank, ncode, title, state, synopsis, genre, keywords, wordCount, wholePeriodPoint, yearlyPoint) {
+  var _translateGenreId = translateGenreId(genre),
+      _translateGenreId2 = _slicedToArray(_translateGenreId, 2),
+      genreA = _translateGenreId2[0],
+      genreB = _translateGenreId2[1];
+
+  return '  <div class="novel_card" id="card_' + rank + '">' + '    <div>' + ('      <span class="rank_num">' + rank + '\u4F4D</span> <a class="novel_title" href="https://ncode.syosetu.com/' + ncode + '/">' + title + '</a>') + '      <input type="button" class="btn btn-danger delete_button" value="x">' + '    </div>' + '    <div>' + ('      <input type="button" id="open_synopsis_button_' + rank + '" class="btn open_synopsis_button" value="...">') + '      <div class="novel_synopsis">' + ('        ' + synopsis) + '      </div>' + ('      \u30B8\u30E3\u30F3\u30EB\uFF1A<span class="blue">' + genreA + '</span>\u3014' + genreB + '\u3015<br>') + ('      \u30AD\u30FC\u30EF\u30FC\u30C9\uFF1A <span class="blue">' + keywords.join(' ') + '</span><br>') + ('      <span class="margin-right">' + state + '</span>') + ('      <span class="margin-right">\u7D04' + Math.round(wordCount / 500) + '\u5206\uFF08' + ('' + wordCount).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,') + '\u6587\u5B57\uFF09</span>') + ('      \u7DCF\u5408\u8A55\u4FA1pt\uFF1A<span class="red margin-right">' + wholePeriodPoint + 'pt</span>') + ('      \u5E74\u9593pt\uFF1A<span class="red margin-right">' + yearlyPoint + 'pt</span>') + '    </div>' + '  </div>';
 }
 
 function getNcodesOrderedByYearlyPoint() {
@@ -99,7 +136,7 @@ $(function () {
       var rank = numAppendedNovel + i + 1;
       var ncode = ncodes[numAppendedNovel + i];
       var data = syosetuData[ncode];
-      createdHTML += createNovelCardHTML(rank, ncode, data.title, data.state, data.synopsis, data.genre, data.genre, data.keywords, data.wordCount, data.wholePeriodPoint, data.yearlyPoint);
+      createdHTML += createNovelCardHTML(rank, ncode, data.title, data.state, data.synopsis, data.genre, data.keywords, data.wordCount, data.wholePeriodPoint, data.yearlyPoint);
     }
     document.getElementById('card_container').insertAdjacentHTML('beforeend', createdHTML);
     for (var _i = 0; _i < num; _i++) {
@@ -148,6 +185,12 @@ $(function () {
       el.onclick = function () {
         closeCard(i + 1);
         setNcodeToStorage(ncodes[i]);
+      };
+    });
+    $('.open_synopsis_button').each(function (i, el) {
+      el.onclick = function () {
+        $(el).css('display', 'none');
+        $('#card_' + (i + 1)).toggleClass('open');
       };
     });
   }, 500);
