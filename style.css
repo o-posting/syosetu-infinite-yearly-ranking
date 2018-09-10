@@ -14,7 +14,7 @@
   overflow-x: auto;
 }
 
-@media (max-width: 320px), (max-height: 740px) {
+@media (max-width: 640px) {
   .novel_card{
     padding-top: 6px;
     padding-bottom: 10px;
@@ -37,7 +37,7 @@
   color: #660033;
 }
 
-@media (max-width: 320px), (max-height: 740px) {
+@media (max-width: 640px) {
   .novel_info{
     overflow-y: hidden;
     max-height: 200px;
@@ -97,7 +97,7 @@
   -webkit-filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
           filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
 }
-@media (max-width: 320px), (max-height: 740px) {
+@media (max-width: 640px) {
   .delete_button{
     padding: 0px 25px;
   }
@@ -134,7 +134,7 @@
           filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
 }
 
-@media (max-width: 320px), (max-height: 740px) {
+@media (max-width: 640px) {
   #go_forward_10{
     padding: 5px;
   }
@@ -164,7 +164,7 @@
   display: none;
 }
 
-@media (max-width: 320px), (max-height: 740px) {
+@media (max-width: 640px) {
   .open_synopsis_button{
     display: block;
     z-index: 9000;
@@ -180,3 +180,8 @@
   }
 }
 
+
+.btn-basic2:hover {
+  background-color: #d4d4d4;
+  border-color: #d4d4d4;
+}

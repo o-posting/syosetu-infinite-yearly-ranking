@@ -44,7 +44,7 @@ function createNovelCardHTML(rank, ncode, title, state, synopsis, genre, keyword
           `      総合評価pt：<span class="red margin-right">${wholePeriodPoint}pt</span>` +
           `      年間pt：<span class="red margin-right">${yearlyPoint}pt</span>` +
           `    </div>` +
-          `    <input type="button" id="open_synopsis_button_${rank}" class="btn open_synopsis_button" value="...">` +
+          `    <input type="button" id="open_synopsis_button_${rank}" class="btn btn-basic2 open_synopsis_button" value="...">` +
           `  </div>`;
 }
 
