@@ -38,7 +38,7 @@ function createNovelCardHTML(rank, ncode, title, state, synopsis, genre, keyword
       genreA = _translateGenreId2[0],
       genreB = _translateGenreId2[1];
 
-  return '  <div class="novel_card" id="card_' + rank + '">' + '    <div>' + ('      <span class="rank_num">' + rank + '\u4F4D</span> <a class="novel_title" href="https://ncode.syosetu.com/' + ncode + '/">' + title + '</a>') + '      <input type="button" class="btn btn-danger delete_button" value="x">' + '    </div>' + ('    <div id="novel_synopsis_' + rank + '" class="novel_synopsis">') + ('        ' + synopsis + '<br>') + ('      \u30B8\u30E3\u30F3\u30EB\uFF1A<span class="blue">' + genreA + '</span>\u3014' + genreB + '\u3015<br>') + ('      \u30AD\u30FC\u30EF\u30FC\u30C9\uFF1A <span class="blue">' + keywords.join(' ') + '</span><br>') + ('      <span class="margin-right">' + state + '</span>') + ('      <span class="margin-right">\u7D04' + Math.round(wordCount / 500) + '\u5206\uFF08' + ('' + wordCount).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,') + '\u6587\u5B57\uFF09</span>') + ('      \u7DCF\u5408\u8A55\u4FA1pt\uFF1A<span class="red margin-right">' + wholePeriodPoint + 'pt</span>') + ('      \u5E74\u9593pt\uFF1A<span class="red margin-right">' + yearlyPoint + 'pt</span>') + '    </div>' + ('    <input type="button" id="open_synopsis_button_' + rank + '" class="btn open_synopsis_button" value="...">') + '  </div>';
+  return '  <div class="novel_card" id="card_' + rank + '">' + '    <div>' + ('      <span class="rank_num">' + rank + '\u4F4D</span> <a class="novel_title" href="https://ncode.syosetu.com/' + ncode + '/">' + title + '</a>') + '      <input type="button" class="btn btn-danger delete_button" value="x">' + '    </div>' + ('    <div id="novel_info_' + rank + '" class="novel_info">') + ('      <span class="novel_synopsis">' + synopsis + '</span><br>') + ('      \u30B8\u30E3\u30F3\u30EB\uFF1A<span class="blue">' + genreA + '</span>\u3014' + genreB + '\u3015<br>') + ('      \u30AD\u30FC\u30EF\u30FC\u30C9\uFF1A <span class="blue">' + keywords.join(' ') + '</span><br>') + ('      <span class="margin-right">' + state + '</span>') + ('      <span class="margin-right">\u7D04' + Math.round(wordCount / 500) + '\u5206\uFF08' + ('' + wordCount).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,') + '\u6587\u5B57\uFF09</span>') + ('      \u7DCF\u5408\u8A55\u4FA1pt\uFF1A<span class="red margin-right">' + wholePeriodPoint + 'pt</span>') + ('      \u5E74\u9593pt\uFF1A<span class="red margin-right">' + yearlyPoint + 'pt</span>') + '    </div>' + ('    <input type="button" id="open_synopsis_button_' + rank + '" class="btn open_synopsis_button" value="...">') + '  </div>';
 }
 
 function getNcodesOrderedByYearlyPoint() {
@@ -190,7 +190,7 @@ $(function () {
     $('.open_synopsis_button').each(function (i, el) {
       el.onclick = function () {
         $(el).css('display', 'none');
-        $('#novel_synopsis_' + (i + 1)).toggleClass('open');
+        $('#novel_info_' + (i + 1)).toggleClass('open');
       };
     });
   }, 500);

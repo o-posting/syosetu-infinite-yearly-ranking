@@ -35,8 +35,8 @@ function createNovelCardHTML(rank, ncode, title, state, synopsis, genre, keyword
           `      <span class="rank_num">${rank}位</span> <a class="novel_title" href="https://ncode.syosetu.com/${ncode}/">${title}</a>` +
           `      <input type="button" class="btn btn-danger delete_button" value="x">` +
           `    </div>` +
-          `    <div id="novel_synopsis_${rank}" class="novel_synopsis">` +
-          `        ${synopsis}<br>` +
+          `    <div id="novel_info_${rank}" class="novel_info">` +
+          `      <span class="novel_synopsis">${synopsis}</span><br>` +
           `      ジャンル：<span class="blue">${genreA}</span>〔${genreB}〕<br>` +
           `      キーワード： <span class="blue">${keywords.join(' ')}</span><br>` +
           `      <span class="margin-right">${state}</span>` +
@@ -196,7 +196,7 @@ $(() => {
     $('.open_synopsis_button').each((i, el) => {
       el.onclick = () => {
         $(el).css('display', 'none');
-        $(`#novel_synopsis_${i + 1}`).toggleClass('open');
+        $(`#novel_info_${i + 1}`).toggleClass('open');
       }
     });
   }, 500);
