@@ -10,6 +10,7 @@
           box-shadow: 1px 3px 2px rgba(0,0,0,0.2);
   -webkit-filter: drop-shadow(1px 3px 2px rgba(0,0,0,0.2));
   filter: drop-shadow(1px 3px 2px rgba(0,0,0,0.2));
+  overflow: auto;
 }
 
 .novel_title {
@@ -75,17 +76,28 @@
 #float_button_box{
   display: block;
   position: fixed;
-  bottom: 60px;
-  right: 20px;
+  bottom: 4%;
+  right: 1%;
   z-index: 9999;
   opacity: 0.8;
 }
+
 #go_forward_10{
   padding: 20px;
 }
 #go_forward_100{
   padding: 20px;
 }
+
+@media (max-width: 320px), (max-height: 740px) {
+  #go_forward_10{
+    padding: 5px;
+  }
+  #go_forward_100{
+    padding: 5px;
+  }
+}
+
 .margin-right{
   margin-right: 50px;
 }
@@ -102,3 +114,4 @@
 #closed_card_ncodes_json{
   height: 130px;
 }
+
