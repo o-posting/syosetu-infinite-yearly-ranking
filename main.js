@@ -1,4 +1,35 @@
-function createNovelCardHTML(rank, ncode, title, state, synopsis, genreA, genreB, keywords, wordCount, wholePeriodPoint, yearlyPoint){
+function translateGenreId(id){
+  if (+id === 101) return ['異世界', '恋愛'];
+  if (+id === 102) return ['現実世界', '恋愛'];
+
+  if (+id === 201) return ['ハイファンタジー', 'ファンタジー'];
+  if (+id === 202) return ['ローファンタジー', 'ファンタジー'];
+
+  if (+id === 301) return ['純文学', '文芸'];
+  if (+id === 302) return ['ヒューマンドラマ', '文芸'];
+  if (+id === 303) return ['歴史', '文芸'];
+  if (+id === 304) return ['推理', '文芸'];
+  if (+id === 305) return ['ホラー', '文芸'];
+  if (+id === 306) return ['アクション', '文芸'];
+  if (+id === 307) return ['コメディー', '文芸'];
+
+  if (+id === 401) return ['VRゲーム', 'SF'];
+  if (+id === 402) return ['宇宙', 'SF'];
+  if (+id === 403) return ['空想科学', 'SF'];
+  if (+id === 404) return ['パニック', 'SF'];
+
+  if (+id === 9901) return ['童話', 'その他'];
+  if (+id === 9902) return ['詩', 'その他'];
+  if (+id === 9903) return ['エッセイ', 'その他'];
+  if (+id === 9904) return ['リプレイ', 'その他'];
+  if (+id === 9905) return ['その他', 'その他'];
+
+  if (+id === 9801) return ['ノンジャンル', 'ノンジャンル'];
+
+  return ['error', 'error'];
+}
+function createNovelCardHTML(rank, ncode, title, state, synopsis, genre, keywords, wordCount, wholePeriodPoint, yearlyPoint){
+  let [genreA, genreB] = translateGenreId(genre);
   return  `  <div class="novel_card" id="card_${rank}">` +
           `    <div>` +
           `      <span class="rank_num">${rank}位</span> <a class="novel_title" href="https://ncode.syosetu.com/${ncode}/">${title}</a>` +
@@ -114,7 +145,7 @@ $(() => {
       const rank = (numAppendedNovel + i) + 1;
       const ncode = ncodes[(numAppendedNovel + i)];
       const data = syosetuData[ncode];
-      createdHTML += createNovelCardHTML(rank, ncode, data.title, data.state, data.synopsis, data.genre, data.genre, data.keywords, data.wordCount, data.wholePeriodPoint, data.yearlyPoint);
+      createdHTML += createNovelCardHTML(rank, ncode, data.title, data.state, data.synopsis, data.genre, data.keywords, data.wordCount, data.wholePeriodPoint, data.yearlyPoint);
     }
     document.getElementById('card_container').insertAdjacentHTML('beforeend', createdHTML);
     for(let i = 0; i < num; i++){
