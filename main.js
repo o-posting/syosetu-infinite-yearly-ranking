@@ -49,34 +49,7 @@ function createNovelCardHTML(rank, ncode, title, state, synopsis, genre, keyword
 }
 
 function getNcodesOrderedByYearlyPoint(){
-  let queryString = window.location.search;
-  if(queryString.indexOf("completed") != -1){
-    console.log('option: completed');
-    return Object.keys(syosetuData).sort((ncode1, ncode2) => {
-      //完結済みでない小説を最後の方へソートする
-      if(syosetuData[ncode1].state !== "完結済み"){
-        if(syosetuData[ncode2].state !== "完結済み"){
-          return 0;
-        }else{
-          return 1;
-        }
-      }else if(syosetuData[ncode2].state !== "完結済み"){
-        return -1;
-      }
-
-      //年間ポイントの降順
-      if(syosetuData[ncode1].yearlyPoint < syosetuData[ncode2].yearlyPoint){
-        return 1;
-      }else if(syosetuData[ncode1].yearlyPoint > syosetuData[ncode2].yearlyPoint){
-        return -1;
-      }else{
-        return 0;
-      }
-    });
-  }
-
   return Object.keys(syosetuData).sort((ncode1, ncode2) => {
-    //年間ポイントの降順
     if(syosetuData[ncode1].yearlyPoint < syosetuData[ncode2].yearlyPoint){
       return 1;
     }else if(syosetuData[ncode1].yearlyPoint > syosetuData[ncode2].yearlyPoint){
@@ -96,6 +69,9 @@ function getRankDisplayedOnScreen(){
 }
 
 function closeCard(rank){
+  if (!document.getElementById('card_' + rank)){
+    return;
+  }
   $(`#card_${rank}`).css('height', '2px');
   $(`#card_${rank}`).css('margin-bottom', '2px');
   $(`#card_${rank} *`).css('display', 'none');
@@ -170,12 +146,14 @@ $(() => {
       const rank = (numAppendedNovel + i) + 1;
       const ncode = ncodes[(numAppendedNovel + i)];
       const data = syosetuData[ncode];
+      if (window.location.search.indexOf("complete") !== -1 && data.state !== "完結済み") continue;
       createdHTML += createNovelCardHTML(rank, ncode, data.title, data.state, data.synopsis, data.genre, data.keywords, data.wordCount, data.wholePeriodPoint, data.yearlyPoint);
     }
     document.getElementById('card_container').insertAdjacentHTML('beforeend', createdHTML);
     for(let i = 0; i < num; i++){
-      if(closedCardNcodes.indexOf(ncodes[numAppendedNovel + i]) === -1) continue;
-      closeCard(numAppendedNovel + i + 1);
+      if(closedCardNcodes.indexOf(ncodes[numAppendedNovel + i]) !== -1){
+        closeCard(numAppendedNovel + i + 1);
+      }
     }
     numAppendedNovel += num;
   };
@@ -215,10 +193,11 @@ $(() => {
   //要素を生成してからすぐまたはsetTimeoutで一度だけon('click')やonclickを設定してもなぜかうまくいかなかったので、setIntervalで何度も書き込む。
   setInterval(() => {
     $('.delete_button').each((i, el) => {
+      let rank = +$(el).parent().find('.rank_num').html().replace('位', '');
       el.onclick = () => {
-        closeCard(i + 1);
-        setNcodeToStorage(ncodes[i]);
-      }
+        closeCard(rank);
+        setNcodeToStorage(ncodes[rank - 1]);
+      };
     });
     $('.open_synopsis_button').each((i, el) => {
       el.onclick = () => {
