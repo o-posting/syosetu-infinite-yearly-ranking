@@ -49,7 +49,34 @@ function createNovelCardHTML(rank, ncode, title, state, synopsis, genre, keyword
 }
 
 function getNcodesOrderedByYearlyPoint(){
+  let queryString = window.location.search;
+  if(queryString.indexOf("completed") != -1){
+    console.log('option: completed');
+    return Object.keys(syosetuData).sort((ncode1, ncode2) => {
+      //完結済みでない小説を最後の方へソートする
+      if(syosetuData[ncode1].state !== "完結済み"){
+        if(syosetuData[ncode2].state !== "完結済み"){
+          return 0;
+        }else{
+          return 1;
+        }
+      }else if(syosetuData[ncode2].state !== "完結済み"){
+        return -1;
+      }
+
+      //年間ポイントの降順
+      if(syosetuData[ncode1].yearlyPoint < syosetuData[ncode2].yearlyPoint){
+        return 1;
+      }else if(syosetuData[ncode1].yearlyPoint > syosetuData[ncode2].yearlyPoint){
+        return -1;
+      }else{
+        return 0;
+      }
+    });
+  }
+
   return Object.keys(syosetuData).sort((ncode1, ncode2) => {
+    //年間ポイントの降順
     if(syosetuData[ncode1].yearlyPoint < syosetuData[ncode2].yearlyPoint){
       return 1;
     }else if(syosetuData[ncode1].yearlyPoint > syosetuData[ncode2].yearlyPoint){
