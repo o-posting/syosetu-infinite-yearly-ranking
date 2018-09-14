@@ -77,6 +77,24 @@ function closeCard(rank){
   $(`#card_${rank} *`).css('display', 'none');
 }
 
+function closeCardHardly(rank){
+  if (!document.getElementById('card_' + rank)){
+    return;
+  }
+  $(`#card_${rank}`).css('height', '1px');
+  $('#card_' + rank).css('background', 'transparent');
+ 
+  $('#card_' + rank).css('-webkit-box-shadow', 'none');
+  $('#card_' + rank).css(        'box-shadow', 'none');
+  $('#card_' + rank).css('-webkit-filter', 'none');
+  $('#card_' + rank).css(        'filter', 'none');
+
+  $(`#card_${rank}`).css('margin-bottom', '0px');
+  $(`#card_${rank}`).css('margin-top', '0px');
+  $(`#card_${rank}`).css('padding-bottom', '0px');
+  $(`#card_${rank}`).css('padding-top', '0px');
+  $(`#card_${rank} *`).css('display', 'none');
+}
 
 //n文字ごとに分割
 function splitByLen(str, n) {
@@ -144,14 +162,15 @@ $(() => {
     const closedCardNcodes = getNcodeArrFromStorage();
     for(let i = 0; i < num; i++){
       const rank = (numAppendedNovel + i) + 1;
-      const ncode = ncodes[(numAppendedNovel + i)];
+      const ncode = ncodes[numAppendedNovel + i];
       const data = syosetuData[ncode];
-      if (window.location.search.indexOf("complete") !== -1 && data.state !== "完結済み") continue;
       createdHTML += createNovelCardHTML(rank, ncode, data.title, data.state, data.synopsis, data.genre, data.keywords, data.wordCount, data.wholePeriodPoint, data.yearlyPoint);
     }
     document.getElementById('card_container').insertAdjacentHTML('beforeend', createdHTML);
     for(let i = 0; i < num; i++){
-      if(closedCardNcodes.indexOf(ncodes[numAppendedNovel + i]) !== -1){
+      if (window.location.search.indexOf("completed") !== -1 && syosetuData[ncodes[numAppendedNovel + i]].state !== "完結済み"){
+        closeCardHardly(numAppendedNovel + i + 1);
+      }else if(closedCardNcodes.indexOf(ncodes[numAppendedNovel + i]) !== -1){
         closeCard(numAppendedNovel + i + 1);
       }
     }
