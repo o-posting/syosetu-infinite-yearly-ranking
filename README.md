@@ -9,5 +9,4 @@ https://o-posting.github.io/syosetu-infinite-yearly-ranking/
 
 # 使い方
 https://o-posting.github.io/syosetu-infinite-yearly-ranking/ にアクセスすると使えます。
-URLの後ろに https://o-posting.github.io/syosetu-infinite-yearly-ranking/#100 のように#を使って数字をつけると、その順位のところまでジャンプします。(完結済み小説のみ表示する場合は https://o-posting.github.io/syosetu-infinite-yearly-ranking/?completed#2000 のように。)
 右下にあるボタンを押せば、一度に大きくスクロールできます。
