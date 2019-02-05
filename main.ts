@@ -1,5 +1,33 @@
-"use strict";
-const genreIdTranslation = new Map([
+interface NovelData {
+    errors: object[];
+    genre: string;
+    keywords: string[];
+    state: "短編" | "連載中" | "完結済み" | "error";
+    synopsis: string;
+    title: string;
+    wholePeriodPoint: number;  // 非公開なら-2, エラーなら-1
+    wordCount: number;
+    yearlyPoint: number;       // 非公開またはエラーなら-2
+}
+
+interface NovelDataWithNCode {
+    errors: object[];
+    genre: string;
+    keywords: string[];
+    ncode: string;
+    state: "短編" | "連載中" | "完結済み" | "error";
+    synopsis: string;
+    title: string;
+    wholePeriodPoint: number;  // 非公開なら-2, エラーなら-1
+    wordCount: number;
+    yearlyPoint: number;       // 非公開またはエラーなら-2
+}
+
+declare let syosetuData: { [ncode: string]: NovelData };
+declare let dataVersion: string;
+declare const $: any;
+
+const genreIdTranslation = new Map<string, [string, string]>([
     // [genreId, [specific, generic]]
     ["101", ["異世界", "恋愛"]],
     ["102", ["現実世界", "恋愛"]],
@@ -23,14 +51,16 @@ const genreIdTranslation = new Map([
     ["9905", ["その他", "その他"]],
     ["9801", ["ノンジャンル", "ノンジャンル"]],
 ]);
-const novelDataToNovelDataWithNCode = (original) => {
-    const arr = new Array();
+
+const novelDataToNovelDataWithNCode = (original: typeof syosetuData): NovelDataWithNCode[] => {
+    const arr = new Array<NovelDataWithNCode>();
     Object.keys(original).forEach((key) => {
-        arr.push(Object.assign({ ncode: key }, original[key]));
+        arr.push({ ncode: key, ...original[key] });
     });
     return arr;
 };
-const getRankDisplayedOnScreen = () => {
+
+const getRankDisplayedOnScreen = (): number => {
     for (let i = 1; i < 30000; i++) {
         const el = document.getElementById("card_" + i);
         if (el === null) {
@@ -42,17 +72,21 @@ const getRankDisplayedOnScreen = () => {
     }
     return 0;
 };
+
 // n文字ごとに分割
-const splitByLen = (str, n) => {
+const splitByLen = (str: string, n: number): string[] => {
     const dst = [];
     for (let i = 0; i < str.length; i += n) {
         dst.push(str.substr(i, n));
     }
     return dst;
 };
+
 class BlackList {
+    private canUseLocalStorage: boolean;
+    private ncodes: string[] = [];
+
     constructor() {
-        this.ncodes = [];
         // localStorageの読み取りが禁止されているかを確認
         this.canUseLocalStorage = this.isLocalStorageAvailable();
         if (!this.canUseLocalStorage) {
@@ -71,51 +105,59 @@ class BlackList {
         }
         this.ncodes = this.parseStorageData(localStorage.closedCards);
     }
-    getList() {
+
+    public getList(): ReadonlyArray<string> {
         return Object.freeze(this.ncodes);
     }
-    displayClosedCardNcodes() {
+
+    public displayClosedCardNcodes() {
         $("#closed_card_ncodes_json").val(JSON.stringify(this.ncodes, null, "    "));
     }
-    setNCodeArrToStorage(ncodeArr) {
+
+    public setNCodeArrToStorage(ncodeArr: string[]) {
         this.ncodes = this.removeDuplicates(ncodeArr);
         if (this.canUseLocalStorage) {
             localStorage.closedCards = this.stringifyNCodeList(this.ncodes);
         }
         this.displayClosedCardNcodes();
     }
-    setNcodeToStorage(ncode) {
+
+    public setNcodeToStorage(ncode: string) {
         this.ncodes = this.removeDuplicates([ncode, ...this.ncodes]);
         if (this.canUseLocalStorage) {
             localStorage.closedCards = this.stringifyNCodeList(this.ncodes);
         }
         this.displayClosedCardNcodes();
     }
-    isLocalStorageAvailable() {
+
+    private isLocalStorageAvailable() {
         try {
-            window._ = localStorage;
+            (window as any)._ = localStorage;
             return !!localStorage;
-        }
-        catch (_a) {
+        } catch {
             return false;
         }
     }
-    parseStorageData(data) {
+
+    private parseStorageData(data: string): string[] {
         // 先頭に'n'をつけて=を消す
         const list = splitByLen(data, 6);
         return list.map((el) => "n" + el.replace(/=/g, ""));
     }
-    stringifyNCodeList(data) {
+
+    private stringifyNCodeList(data: string[]): string {
         // 先頭の'n'を取り除いてから'='で6文字に埋める
         return this.removeDuplicates(this.ncodes.map((el) => ("======" + el.slice(1)).slice(-6))).join("");
     }
-    removeDuplicates(arr) {
+
+    private removeDuplicates(arr: string[]) {
         return arr.filter((x, i) => {
             return arr.indexOf(x) === i;
         });
     }
 }
-const setLastUpdateTimeText = (lastUpdateTimeLabel) => {
+
+const setLastUpdateTimeText = (lastUpdateTimeLabel: Element | null) => {
     if (!lastUpdateTimeLabel || !(lastUpdateTimeLabel instanceof HTMLElement)) {
         console.log(`エラー: setLastUpdateTimeTextToPTagへ渡された値の型が間違っています。`);
         console.log(lastUpdateTimeLabel);
@@ -123,36 +165,27 @@ const setLastUpdateTimeText = (lastUpdateTimeLabel) => {
     }
     lastUpdateTimeLabel.innerText = "データ更新日: " + dataVersion;
 };
-const toHalfWidth = (str) => {
+
+const toHalfWidth = (str: string) => {
     return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => {
         return String.fromCharCode(s.charCodeAt(0) - 65248);
-    });
+       });
 };
+
 // 小説検索のマッチ
-const isNovelIncludesSingleString = (novel, strLowerHalfWidth) => {
+const isNovelIncludesSingleString = (novel: NovelDataWithNCode, strLowerHalfWidth: string) => {
     // 英字の大文字小文字、英数字の全角半角を区別しない。
     return novel.keywords.some((keyword) => toHalfWidth(keyword.toLowerCase()).includes(strLowerHalfWidth)) ||
-        toHalfWidth(novel.synopsis.toLowerCase()).includes(strLowerHalfWidth) ||
-        toHalfWidth(novel.title.toLowerCase()).includes(strLowerHalfWidth);
+           toHalfWidth(novel.synopsis.toLowerCase()).includes(strLowerHalfWidth) ||
+           toHalfWidth(novel.title.toLowerCase()).includes(strLowerHalfWidth);
 };
-const isNovelIncludes = (novel, str) => {
+const isNovelIncludes = (novel: NovelDataWithNCode, str: string): boolean => {
     return toHalfWidth(str).toLowerCase().split(/ |　/g).filter((el) => el)
         .every((s) => isNovelIncludesSingleString(novel, s));
 };
+
 class NovelListView {
-    constructor(cardContainer) {
-        this.originalData = {};
-        this.data = [];
-        this.blacklist = new Set();
-        this.numVisibleCards = 0;
-        this.filters = {};
-        this.terminated = false;
-        if (cardContainer === null) {
-            throw Error("Error: cardContainer === null");
-        }
-        this.cardContainer = cardContainer;
-    }
-    static createNovelCardHTML(rank, novel) {
+    private static createNovelCardHTML(rank: number, novel: NovelDataWithNCode) {
         const [specific, generic] = genreIdTranslation.get(novel.genre) || ["エラー", "エラー"];
         return `
         <div class="novel_card" id="card_${rank}">
@@ -177,7 +210,8 @@ class NovelListView {
                 class="btn btn-basic2 open_synopsis_button" value="...">
         </div>`;
     }
-    static closeCard(rank) {
+
+    private static closeCard(rank: number) {
         if (!document.getElementById("card_" + rank)) {
             return;
         }
@@ -185,40 +219,63 @@ class NovelListView {
         $(`#card_${rank}`).css("margin-bottom", "2px");
         $(`#card_${rank} *`).css("display", "none");
     }
-    static closeCardHardly(rank) {
+
+    private static closeCardHardly(rank: number) {
         if (!document.getElementById("card_" + rank)) {
             return;
         }
         $(`#card_${rank}`).css("height", "1px");
         $("#card_" + rank).css("background", "transparent");
+
         $("#card_" + rank).css("-webkit-box-shadow", "none");
         $("#card_" + rank).css("box-shadow", "none");
         $("#card_" + rank).css("-webkit-filter", "none");
         $("#card_" + rank).css("filter", "none");
+
         $(`#card_${rank}`).css("margin-bottom", "0px");
         $(`#card_${rank}`).css("margin-top", "0px");
         $(`#card_${rank}`).css("padding-bottom", "0px");
         $(`#card_${rank}`).css("padding-top", "0px");
         $(`#card_${rank} *`).css("display", "none");
     }
-    setNovelList(list) {
+
+    private originalData: typeof syosetuData = {};
+    private data: NovelDataWithNCode[] = [];
+    private blacklist: Set<string> = new Set();
+    private numVisibleCards: number = 0;
+    private cardContainer: Element;
+    private filters: { completedOnly?: boolean, searchString?: string } = {};
+    private terminated: boolean = false;
+
+    public constructor(cardContainer: Element | null) {
+        if (cardContainer === null) {
+            throw Error("Error: cardContainer === null");
+        }
+        this.cardContainer = cardContainer;
+    }
+
+    public setNovelList(list: typeof syosetuData): void {
         this.originalData = list;
         this.data = novelDataToNovelDataWithNCode(list);
     }
-    sortByYearlyPoint() {
+
+    public sortByYearlyPoint(): void {
         this.data.sort((a, b) => b.yearlyPoint - a.yearlyPoint);
     }
-    setBlacklist(ncodes) {
+
+    public setBlacklist(ncodes: ReadonlyArray<string>): void {
         this.blacklist = new Set(ncodes);
     }
-    clearView() {
+
+    public clearView(): void {
         this.terminated = false;
         this.numVisibleCards = 0;
         this.cardContainer.innerHTML = "";
         this.showCards(30);
     }
+
     // 表示に成功したらtrue
-    showCards(num) {
+    public showCards(num: number): boolean {
         if (this.terminated) {
             return false;
         }
@@ -254,7 +311,8 @@ class NovelListView {
         this.numVisibleCards += num;
         return true;
     }
-    setScrollButton(el, step) {
+
+    public setScrollButton(el: Element | null, step: number): void {
         if (el === null) {
             return;
         }
@@ -262,7 +320,8 @@ class NovelListView {
             this.goForward(step);
         });
     }
-    initScrollEvent() {
+
+    public initScrollEvent(): void {
         const $win = $(window);
         const $doc = $(document);
         window.addEventListener("scroll", () => {
@@ -278,7 +337,8 @@ class NovelListView {
             this.showCards(3);
         }, 20);
     }
-    initCardButtonEvent(setNcodeToStorage) {
+
+    public initCardButtonEvent(setNcodeToStorage: (ncode: string) => void): void {
         // 要素を生成してからすぐまたはsetTimeoutで一度だけon('click')やonclick
         // を設定してもなぜかうまくいかなかったので、setIntervalで何度も書き込む。
         setInterval(() => {
@@ -293,7 +353,7 @@ class NovelListView {
                     console.log("rankNumEl === null || !(rankNumEl instanceof HTMLElement)");
                     return;
                 }
-                const rank = +rankNumEl.innerText.replace("位", "");
+                const rank: number = +rankNumEl.innerText.replace("位", "");
                 el.addEventListener("click", () => {
                     NovelListView.closeCard(rank);
                     setNcodeToStorage(this.data[rank - 1].ncode);
@@ -307,10 +367,12 @@ class NovelListView {
             });
         }, 500);
     }
-    setSearchString(str) {
+
+    public setSearchString(str: string) {
         this.filters.searchString = str;
     }
-    goForward(step, ignoreError = false) {
+
+    private goForward(step: number, ignoreError: boolean = false) {
         const currentRank = getRankDisplayedOnScreen();
         if (currentRank === 0 && !ignoreError) {
             console.log("現在表示中のカードの検索に失敗");
@@ -322,8 +384,11 @@ class NovelListView {
         $("html,body").animate({ scrollTop: $(`#card_${currentRank + step}`).offset().top }, 200);
         return;
     }
+
 }
-const setBlackListTextAreaChangeEvent = (novelList, blackList) => {
+
+const setBlackListTextAreaChangeEvent = (
+        novelList: NovelListView, blackList: BlackList): void => {
     const blacklistTextarea = document.querySelector("#closed_card_ncodes_json");
     if (blacklistTextarea && blacklistTextarea instanceof HTMLTextAreaElement) {
         blacklistTextarea.addEventListener("change", () => {
@@ -342,22 +407,21 @@ const setBlackListTextAreaChangeEvent = (novelList, blackList) => {
                     alert("リストが変更されました。");
                     novelList.setBlacklist(blackList.getList());
                     novelList.clearView();
-                }
-                catch (e) {
+                } catch (e) {
                     alert("入力されたリストの形式が正しくありません。(パースに失敗しました)");
                 }
-            }
-            else {
+            } else {
                 blackList.displayClosedCardNcodes();
                 alert("変更を元に戻しました。");
             }
         });
-    }
-    else {
+    } else {
         console.log("!(blacklistTextarea && blacklistTextarea instanceof HTMLTextAreaElement)");
     }
 };
-const setSearchBoxChangeEvent = (novelList, blackList, data) => {
+
+const setSearchBoxChangeEvent = (
+        novelList: NovelListView, blackList: BlackList, data: NovelDataWithNCode[]): void => {
     const searchBoxEl = document.querySelector("#search_box");
     const hitNumEl = document.querySelector("#hit_num");
     if (!hitNumEl) {
@@ -375,7 +439,7 @@ const setSearchBoxChangeEvent = (novelList, blackList, data) => {
             const searchString = searchBoxEl.value;
             novelList.setSearchString(searchString);
             novelList.clearView();
-            let numHit = 0;
+            let numHit: number = 0;
             data.forEach((novel) => {
                 if (isNovelIncludes(novel, searchString)) {
                     numHit++;
@@ -386,26 +450,31 @@ const setSearchBoxChangeEvent = (novelList, blackList, data) => {
         searchBoxEl.addEventListener("keydown", onKeyHit);
         searchBoxEl.addEventListener("keyup", onKeyHit);
         searchBoxEl.addEventListener("change", onChange);
-    }
-    else {
+    } else {
         console.log("!(searchBoxEl && searchBoxEl instanceof HTMLInputElement)");
     }
 };
+
 const main = () => {
     setLastUpdateTimeText(document.querySelector("#last_update_time"));
     const blackList = new BlackList();
     blackList.displayClosedCardNcodes();
+
     const novelList = new NovelListView(document.querySelector("#card_container"));
     novelList.setNovelList(syosetuData);
     novelList.setBlacklist(blackList.getList());
     novelList.sortByYearlyPoint();
+
     novelList.clearView();
+
     novelList.setScrollButton(document.querySelector("#go_forward_10"), 10);
     novelList.setScrollButton(document.querySelector("#go_forward_100"), 100);
     novelList.initScrollEvent();
     novelList.initCardButtonEvent(blackList.setNcodeToStorage.bind(blackList));
+
     setBlackListTextAreaChangeEvent(novelList, blackList);
     setSearchBoxChangeEvent(novelList, blackList, novelDataToNovelDataWithNCode(syosetuData));
+
     // // もしfragment identifierがあればそこまでジャンプ(#120なら120位へ)
     // if (/^[1-9]\d*$/.test(window.location.hash.substr(1))) {
     //     console.log(+window.location.hash.substr(1) + "へジャンプします");
@@ -416,5 +485,5 @@ const main = () => {
         loadingTextEl.innerHTML = "";
     }
 };
+
 main();
-//# sourceMappingURL=main.js.map

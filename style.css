@@ -68,26 +68,23 @@
   color: #dd0000;
 }
 
-#header_box{
-  text-align: center;
-  padding-top: 70px;
-  padding-bottom: 70px;
+body {
   background: -webkit-gradient(linear, left top, left bottom, from(#aaccff), to(#fff));
   background: linear-gradient(to bottom, #aaccff, #fff);
+  background-repeat: no-repeat;
 }
-#header_line1{
-  color: #000000;
-  font-size: 26px;
+
+#header {
+  padding-top: 70px;
+  padding-bottom: 70px;
 }
-#header_line2{
+
+#title {
   color: #0033cc;
   font-size: 38px;
   text-decoration: underline;
 }
-#header_line3{
-  color: #000000;
-  font-size: 20px;
-}
+
 .delete_button{
   float: right;
   padding: 0px 50px;
