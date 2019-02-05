@@ -372,6 +372,12 @@ class NovelListView {
         this.filters.searchString = str;
     }
 
+    public setFilterFlag(key: "completed_only", value: boolean): void {
+        if (key === "completed_only") {
+            this.filters.completedOnly = value;
+        }
+    }
+
     private goForward(step: number, ignoreError: boolean = false) {
         const currentRank = getRankDisplayedOnScreen();
         if (currentRank === 0 && !ignoreError) {
@@ -455,6 +461,16 @@ const setSearchBoxChangeEvent = (
     }
 };
 
+const setCompletedOnlyCheckboxEvent = (novelList: NovelListView): void => {
+    const checkbox = document.querySelector("#completed_only");
+    if (checkbox && checkbox instanceof HTMLInputElement) {
+        checkbox.addEventListener("change", () => {
+            novelList.setFilterFlag("completed_only", checkbox.checked);
+            novelList.clearView();
+        });
+    }
+};
+
 const main = () => {
     setLastUpdateTimeText(document.querySelector("#last_update_time"));
     const blackList = new BlackList();
@@ -474,6 +490,7 @@ const main = () => {
 
     setBlackListTextAreaChangeEvent(novelList, blackList);
     setSearchBoxChangeEvent(novelList, blackList, novelDataToNovelDataWithNCode(syosetuData));
+    setCompletedOnlyCheckboxEvent(novelList);
 
     // // もしfragment identifierがあればそこまでジャンプ(#120なら120位へ)
     // if (/^[1-9]\d*$/.test(window.location.hash.substr(1))) {

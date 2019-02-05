@@ -310,6 +310,11 @@ class NovelListView {
     setSearchString(str) {
         this.filters.searchString = str;
     }
+    setFilterFlag(key, value) {
+        if (key === "completed_only") {
+            this.filters.completedOnly = value;
+        }
+    }
     goForward(step, ignoreError = false) {
         const currentRank = getRankDisplayedOnScreen();
         if (currentRank === 0 && !ignoreError) {
@@ -391,6 +396,15 @@ const setSearchBoxChangeEvent = (novelList, blackList, data) => {
         console.log("!(searchBoxEl && searchBoxEl instanceof HTMLInputElement)");
     }
 };
+const setCompletedOnlyCheckboxEvent = (novelList) => {
+    const checkbox = document.querySelector("#completed_only");
+    if (checkbox && checkbox instanceof HTMLInputElement) {
+        checkbox.addEventListener("change", () => {
+            novelList.setFilterFlag("completed_only", checkbox.checked);
+            novelList.clearView();
+        });
+    }
+};
 const main = () => {
     setLastUpdateTimeText(document.querySelector("#last_update_time"));
     const blackList = new BlackList();
@@ -406,6 +420,7 @@ const main = () => {
     novelList.initCardButtonEvent(blackList.setNcodeToStorage.bind(blackList));
     setBlackListTextAreaChangeEvent(novelList, blackList);
     setSearchBoxChangeEvent(novelList, blackList, novelDataToNovelDataWithNCode(syosetuData));
+    setCompletedOnlyCheckboxEvent(novelList);
     // // もしfragment identifierがあればそこまでジャンプ(#120なら120位へ)
     // if (/^[1-9]\d*$/.test(window.location.hash.substr(1))) {
     //     console.log(+window.location.hash.substr(1) + "へジャンプします");
