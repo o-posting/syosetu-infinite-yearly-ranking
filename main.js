@@ -152,54 +152,53 @@ class NovelListView {
         }
         this.cardContainer = cardContainer;
     }
-    static createNovelCardHTML(rank, novel) {
+    static createNovelCardHTML(rank, novel, type) {
         const [specific, generic] = genreIdTranslation.get(novel.genre) || ["エラー", "エラー"];
-        return `
-        <div class="novel_card" id="card_${rank}">
-            <div>
-                <span class="rank_num">${rank}位</span>
-                <a class="novel_title" href="https://ncode.syosetu.com/${novel.ncode}/">${novel.title}</a>
-                <input type="button" class="btn btn-danger delete_button" value="x">
-            </div>
-            <div id="novel_info_${rank}" class="novel_info">
-                <span class="novel_synopsis">${novel.synopsis}</span><br>
-                ジャンル：<span class="blue">${specific}</span>〔${generic}〕<br>
-                キーワード： <span class="blue">${novel.keywords.join(" ")}</span><br>
-                <span class="margin-right">${novel.state}</span>
-                <span class="margin-right">
-                    約${Math.round(novel.wordCount / 500)}分
-                    ${("" + novel.wordCount).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}文字）
-                </span>
-                総合評価pt：<span class="red margin-right">${novel.wholePeriodPoint}pt</span>
-                年間pt：<span class="red margin-right">${novel.yearlyPoint}pt</span>
-            </div>
-            <input type="button" id="open_synopsis_button_${rank}"
-                class="btn btn-basic2 open_synopsis_button" value="...">
-        </div>`;
+        switch (type) {
+            case "close":
+                return `<div class="novel_card novel_card_closed" id="card_${rank}"></div>`;
+            case "closeHardly":
+                return `<div class="novel_card novel_card_closed_hardly" id="card_${rank}"></div>`;
+            case "open":
+                return `
+<div class="novel_card" id="card_${rank}">
+    <div>
+        <span class="rank_num">${rank}位</span>
+        <a class="novel_title" href="https://ncode.syosetu.com/${novel.ncode}/">${novel.title}</a>
+        <input type="button" class="btn btn-danger delete_button" value="x">
+    </div>
+    <div id="novel_info_${rank}" class="novel_info">
+        <span class="novel_synopsis">${novel.synopsis}</span><br>
+        ジャンル：<span class="blue">${specific}</span>〔${generic}〕<br>
+        キーワード： <span class="blue">${novel.keywords.join(" ")}</span><br>
+        <span class="margin-right">${novel.state}</span>
+        <span class="margin-right">
+            約${Math.round(novel.wordCount / 500)}分
+            ${("" + novel.wordCount).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}文字）
+        </span>
+        総合評価pt：<span class="red margin-right">${novel.wholePeriodPoint}pt</span>
+        年間pt：<span class="red margin-right">${novel.yearlyPoint}pt</span>
+    </div>
+    <input type="button" id="open_synopsis_button_${rank}"
+        class="btn btn-basic2 open_synopsis_button" value="...">
+</div>`;
+        }
     }
     static closeCard(rank) {
-        if (!document.getElementById("card_" + rank)) {
+        const card = document.querySelector(`#card_${rank}`);
+        if (!card || !(card instanceof HTMLElement)) {
             return;
         }
-        $(`#card_${rank}`).css("height", "2px");
-        $(`#card_${rank}`).css("margin-bottom", "2px");
-        $(`#card_${rank} *`).css("display", "none");
+        card.innerHTML = "";
+        card.classList.add("novel_card_closed");
     }
     static closeCardHardly(rank) {
-        if (!document.getElementById("card_" + rank)) {
+        const card = document.querySelector(`#card_${rank}`);
+        if (!card || !(card instanceof HTMLElement)) {
             return;
         }
-        $(`#card_${rank}`).css("height", "1px");
-        $("#card_" + rank).css("background", "transparent");
-        $("#card_" + rank).css("-webkit-box-shadow", "none");
-        $("#card_" + rank).css("box-shadow", "none");
-        $("#card_" + rank).css("-webkit-filter", "none");
-        $("#card_" + rank).css("filter", "none");
-        $(`#card_${rank}`).css("margin-bottom", "0px");
-        $(`#card_${rank}`).css("margin-top", "0px");
-        $(`#card_${rank}`).css("padding-bottom", "0px");
-        $(`#card_${rank}`).css("padding-top", "0px");
-        $(`#card_${rank} *`).css("display", "none");
+        card.innerHTML = "";
+        card.classList.add("novel_card_closed_hardly");
     }
     setNovelList(list) {
         this.originalData = list;
@@ -215,43 +214,44 @@ class NovelListView {
         this.terminated = false;
         this.numVisibleCards = 0;
         this.cardContainer.innerHTML = "";
-        this.showCards(30);
+        this.showCards(6);
     }
     // 表示に成功したらtrue
-    showCards(num) {
+    showCards(num, recursionCount = 0) {
         if (this.terminated) {
             return false;
         }
+        if (recursionCount > 500) {
+            return true;
+        }
         let createdHTML = "";
+        let numAppendedVisibleCards = 0;
         for (let rank = this.numVisibleCards + 1; rank < this.numVisibleCards + num + 1; rank++) {
-            if (this.data.length < rank - 1) {
+            if (this.data.length <= rank - 1) {
                 this.terminated = true;
                 return false;
             }
-            createdHTML += NovelListView.createNovelCardHTML(rank, this.data[rank - 1]);
+            if (this.filters.completedOnly && this.data[rank - 1].state !== "完結済み") {
+                createdHTML += NovelListView.createNovelCardHTML(rank, this.data[rank - 1], "closeHardly");
+            }
+            else if (this.filters.searchString &&
+                (!isNovelIncludes(this.data[rank - 1], this.filters.searchString))) {
+                createdHTML += NovelListView.createNovelCardHTML(rank, this.data[rank - 1], "closeHardly");
+            }
+            else if (this.blacklist.has(this.data[rank - 1].ncode)) {
+                createdHTML += NovelListView.createNovelCardHTML(rank, this.data[rank - 1], "close");
+                numAppendedVisibleCards++;
+            }
+            else {
+                createdHTML += NovelListView.createNovelCardHTML(rank, this.data[rank - 1], "open");
+                numAppendedVisibleCards++;
+            }
         }
         this.cardContainer.insertAdjacentHTML("beforeend", createdHTML);
-        for (let rank = this.numVisibleCards + 1; rank < this.numVisibleCards + num + 1; rank++) {
-            // 完全削除
-            if (this.filters.completedOnly) {
-                if (this.data[rank - 1].state !== "完結済み") {
-                    NovelListView.closeCardHardly(rank);
-                    continue;
-                }
-            }
-            if (this.filters.searchString) {
-                if (!isNovelIncludes(this.data[rank - 1], this.filters.searchString)) {
-                    NovelListView.closeCardHardly(rank);
-                    continue;
-                }
-            }
-            // 縮小
-            if (this.blacklist.has(this.data[rank - 1].ncode)) {
-                NovelListView.closeCard(rank);
-                continue;
-            }
-        }
         this.numVisibleCards += num;
+        if (numAppendedVisibleCards < num) {
+            this.showCards(num - numAppendedVisibleCards, recursionCount + 1);
+        }
         return true;
     }
     setScrollButton(el, step) {
@@ -265,20 +265,19 @@ class NovelListView {
     initScrollEvent() {
         const $win = $(window);
         const $doc = $(document);
-        window.addEventListener("scroll", () => {
-            if ($win.scrollTop() < $doc.height() - $win.height() * 2) {
-                return;
+        const appendCardIfNeeded = () => {
+            if ($win.scrollTop() >= $doc.height() - $win.height() * 2) {
+                this.showCards(6);
             }
-            this.showCards(3);
-        });
-        setInterval(() => {
-            if ($win.scrollTop() < $doc.height() - $win.height() * 2) {
-                return;
-            }
-            this.showCards(3);
-        }, 20);
+        };
+        window.addEventListener("scroll", appendCardIfNeeded);
+        const loop = () => {
+            appendCardIfNeeded();
+            setTimeout(loop, 20);
+        };
+        loop();
     }
-    initCardButtonEvent(setNcodeToStorage) {
+    initCardButtonEvent(novelList, blackList) {
         // 要素を生成してからすぐまたはsetTimeoutで一度だけon('click')やonclick
         // を設定してもなぜかうまくいかなかったので、setIntervalで何度も書き込む。
         setInterval(() => {
@@ -296,7 +295,8 @@ class NovelListView {
                 const rank = +rankNumEl.innerText.replace("位", "");
                 el.addEventListener("click", () => {
                     NovelListView.closeCard(rank);
-                    setNcodeToStorage(this.data[rank - 1].ncode);
+                    blackList.setNcodeToStorage(this.data[rank - 1].ncode);
+                    novelList.setBlacklist(blackList.getList());
                 });
             });
             document.querySelectorAll(".open_synopsis_button").forEach((el, i) => {
@@ -417,7 +417,7 @@ const main = () => {
     novelList.setScrollButton(document.querySelector("#go_forward_10"), 10);
     novelList.setScrollButton(document.querySelector("#go_forward_100"), 100);
     novelList.initScrollEvent();
-    novelList.initCardButtonEvent(blackList.setNcodeToStorage.bind(blackList));
+    novelList.initCardButtonEvent(novelList, blackList);
     setBlackListTextAreaChangeEvent(novelList, blackList);
     setSearchBoxChangeEvent(novelList, blackList, novelDataToNovelDataWithNCode(syosetuData));
     setCompletedOnlyCheckboxEvent(novelList);

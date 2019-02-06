@@ -26,6 +26,15 @@
   }
 }
 
+.novel_card_closed {
+  height: 2px;
+  margin-bottom: 2px;
+}
+
+.novel_card_closed_hardly {
+  display: none;
+}
+
 .novel_title {
   color: #FD6532;
   font-size: 120%;
