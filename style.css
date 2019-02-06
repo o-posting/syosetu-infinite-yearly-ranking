@@ -27,6 +27,7 @@
 }
 
 .novel_card_closed {
+  padding-top: 0px;
   height: 2px;
   margin-bottom: 2px;
 }
