@@ -199,7 +199,7 @@ class NovelListView {
     <div>
         <span class="rank_num">${rank}位</span>
         <a class="novel_title" href="https://ncode.syosetu.com/${novel.ncode}/">${novel.title}</a>
-        <input type="button" class="btn btn-danger delete_button" value="x">
+        <input type="button" class="btn btn-danger delete_button" value="x" onclick="deleteNovelCard(${rank})">
     </div>
     <div id="novel_info_${rank}" class="novel_info">
         <span class="novel_synopsis">${novel.synopsis}</span><br>
@@ -214,7 +214,8 @@ class NovelListView {
         年間pt：<span class="red margin-right">${novel.yearlyPoint}pt</span>
     </div>
     <input type="button" id="open_synopsis_button_${rank}"
-        class="btn btn-basic2 open_synopsis_button" value="...">
+        class="btn btn-basic2 open_synopsis_button" value="..."
+        onclick="openSynopsis(${rank})">
 </div>`;
         }
     }
@@ -335,34 +336,18 @@ class NovelListView {
     }
 
     public initCardButtonEvent(novelList: NovelListView, blackList: BlackList): void {
-        // 要素を生成してからすぐまたはsetTimeoutで一度だけon('click')やonclick
-        // を設定してもなぜかうまくいかなかったので、setIntervalで何度も書き込む。
-        setInterval(() => {
-            document.querySelectorAll(".delete_button").forEach((el) => {
-                const parent = el.parentElement;
-                if (parent === null) {
-                    console.log("parent === null");
-                    return;
-                }
-                const rankNumEl = parent.querySelector(".rank_num");
-                if (rankNumEl === null || !(rankNumEl instanceof HTMLElement)) {
-                    console.log("rankNumEl === null || !(rankNumEl instanceof HTMLElement)");
-                    return;
-                }
-                const rank: number = +rankNumEl.innerText.replace("位", "");
-                el.addEventListener("click", () => {
-                    NovelListView.closeCard(rank);
-                    blackList.setNcodeToStorage(this.data[rank - 1].ncode);
-                    novelList.setBlacklist(blackList.getList());
-                });
-            });
-            document.querySelectorAll(".open_synopsis_button").forEach((el, i) => {
-                el.addEventListener("click", () => {
-                    $(el).css("display", "none");
-                    $(`#novel_info_${i + 1}`).toggleClass("open");
-                });
-            });
-        }, 500);
+        (window as any).deleteNovelCard = (rank: number) => {
+            NovelListView.closeCard(rank);
+            blackList.setNcodeToStorage(this.data[rank - 1].ncode);
+            novelList.setBlacklist(blackList.getList());
+        };
+        (window as any).openSynopsis = (rank: number) => {
+            const button = document.querySelector(`#open_synopsis_button_${rank}`);
+            if (button && button instanceof HTMLElement) {
+                button.style.display = "none";
+            }
+            $(`#novel_info_${rank}`).toggleClass("open");
+        };
     }
 
     public setSearchString(str: string) {
